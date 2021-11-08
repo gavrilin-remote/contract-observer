@@ -1,11 +1,14 @@
 import { makeObservable, observable, computed, action } from 'mobx';
+import { ContractStore } from './Contract';
 
 const ethereumAddressRegex = /^0x[a-fA-F0-9]{40}$/;
 
 export class ContractInput {
   address: string;
+  contractStore: ContractStore;
   abi: string;
-  constructor() {
+
+  constructor(contractStore: ContractStore) {
     makeObservable(this, {
       abi: observable,
       address: observable,
@@ -16,6 +19,7 @@ export class ContractInput {
     });
     this.abi = '';
     this.address = '';
+    this.contractStore = contractStore;
   }
 
   setAbi = (input: string) => {
@@ -34,6 +38,9 @@ export class ContractInput {
       JSON.parse(this.abi);
     } catch (e) {
       return false;
+    }
+    if (this.abi && this.address) {
+      this.contractStore.makeContract(this.address, this.abi);
     }
     return true;
   }
